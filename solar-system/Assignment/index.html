@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Premium VR Architectural Visualization</title>
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+  
+  <script>
+    // PREMIUM FEATURE: Smart Lighting Toggle
+    // Clicking the "Light Switch" in the living room changes the scene mood
+    AFRAME.registerComponent('light-switch', {
+      init: function () {
+        this.el.addEventListener('click', () => {
+          let sun = document.querySelector('#sun');
+          let ambient = document.querySelector('#ambient');
+          let currentInt = sun.getAttribute('intensity');
+          
+          if (currentInt > 0.5) {
+            sun.setAttribute('animation', 'property: intensity; to: 0.1; dur: 2000');
+            ambient.setAttribute('animation', 'property: intensity; to: 0.2; dur: 2000');
+            document.querySelector('a-scene').setAttribute('background', 'color: #001a33');
+          } else {
+            sun.setAttribute('animation', 'property: intensity; to: 1.2; dur: 2000');
+            ambient.setAttribute('animation', 'property: intensity; to: 0.8; dur: 2000');
+            document.querySelector('a-scene').setAttribute('background', 'color: #E0F7FA');
+          }
+        });
+      }
+    });
+
+    // Interaction for Doors
+    AFRAME.registerComponent('door-control', {
+      init: function () {
+        let open = false;
+        this.el.addEventListener('click', () => {
+          if(!open) {
+            this.el.setAttribute('animation', 'property: rotation; to: 0 90 0; dur: 1000');
+            open = true;
+          } else {
+            this.el.setAttribute('animation', 'property: rotation; to: 0 0 0; dur: 1000');
+            open = false;
+          }
+        });
+      }
+    });
+  </script>
+</head>
+
+<body>
+  <a-scene background="color: #E0F7FA" cursor="rayOrigin: mouse" shadow="type: pcfsoft">
+
+    <a-assets>
+      <img id="blue-marble" src="https://i.imgur.com/8yN7f6Y.jpg"> 
+      <img id="birch-wood" src="https://i.imgur.com/39A86r4.jpg">
+      <img id="bright-grass" src="https://i.imgur.com/w9OueZp.jpg">
+      <audio id="ambience" src="https://cdn.aframe.io/basic-guide/audio/backgroundnoise.wav" preload="auto"></audio>
+    </a-assets>
+
+    <a-entity id="rig" movement-controls="speed: 0.25; fly: false" position="0 0 40">
+      <a-entity camera position="0 1.6 0" look-controls>
+        <a-cursor color="#00BCD4" scale="1.5 1.5 1.5"></a-cursor>
+      </a-entity>
+    </a-entity>
+
+    <a-light id="ambient" type="ambient" intensity="0.8"></a-light>
+    <a-light id="sun" type="directional" position="10 25 10" intensity="1.2" castShadow="true" shadowCameraLeft="-20" shadowCameraRight="20"></a-light>
+
+    <a-plane rotation="-90 0 0" width="120" height="120" src="#bright-grass" repeat="20 20" shadow="receive: true"></a-plane>
+    
+    <a-box position="0 1.5 -55" width="110" height="3" depth="0.5" color="white"></a-box>
+    <a-box position="-55 1.5 0" width="0.5" height="3" depth="110" color="white"></a-box>
+    <a-box position="55 1.5 0" width="0.5" height="3" depth="110" color="white"></a-box>
+
+    <a-entity position="30 0.1 -15">
+      <a-box width="20" height="0.6" depth="20" color="#FFFFFF" shadow></a-box>
+      <a-ocean width="19" depth="19" density="25" speed="2" color="#00E5FF" opacity="0.8" position="0 0.4 0"></a-ocean>
+      
+      <a-entity sound="src: #ambience; autoplay: true; loop: true; volume: 0.4; rolloffFactor: 5"></a-entity>
+      
+      <a-entity position="-7 0.6 8" rotation="0 180 0">
+         <a-box width="2" height="0.2" depth="4" color="#01579B"></a-box>
+         <a-box position="0 0.6 -1.8" width="2" height="1.5" depth="0.1" color="#01579B"></a-box>
+      </a-entity>
+    </a-entity>
+
+    <a-entity id="main-structure">
+      <a-box position="0 0.2 0" width="24" height="0.4" depth="24" src="#blue-marble" color="#1A237E" shadow></a-box>
+      
+      <a-box position="-12 3 0" width="0.2" height="6" depth="24" color="white"></a-box>
+      <a-box position="0 3 -12" width="24" height="6" depth="0.2" color="white"></a-box>
+      <a-box position="6 3 12" width="12" height="6" depth="0.1" color="#B2EBF2" opacity="0.2" transparent="true"></a-box>
+
+      <a-sphere position="11.8 1.5 5" radius="0.1" color="#00ACC1" light-switch>
+          <a-text value="LIGHT CONTROL" position="0 0.3 0" align="center" color="#1A237E" scale="0.5"></a-text>
+      </a-sphere>
+
+      <a-box position="-6 3 12" width="6" height="6" depth="0.3" color="#00ACC1" door-control shadow>
+          <a-text value="PUSH TO OPEN" align="center" position="0 0 0.3" color="white" scale="1"></a-text>
+      </a-box>
+
+      <a-entity id="stairs" position="-10 0 8">
+        <a-box position="0 0.5 0" width="4" height="0.2" depth="1.5" color="white"></a-box>
+        <a-box position="0 1.2 -1" width="4" height="0.2" depth="1.5" color="white"></a-box>
+        <a-box position="0 1.9 -2" width="4" height="0.2" depth="1.5" color="white"></a-box>
+        <a-box position="0 2.6 -3" width="4" height="0.2" depth="1.5" color="white"></a-box>
+        <a-box position="0 3.3 -4" width="4" height="0.2" depth="1.5" color="white"></a-box>
+        <a-box position="0 4.0 -5" width="4" height="0.2" depth="1.5" color="white"></a-box>
+        <a-box position="0 4.7 -6" width="4" height="0.2" depth="1.5" color="white"></a-box>
+        <a-box position="0 5.4 -7" width="4" height="0.2" depth="1.5" color="white"></a-box>
+      </a-entity>
+
+      <a-entity position="0 6 0">
+        <a-box width="24" height="0.2" depth="24" src="#birch-wood" color="#FFE0B2" shadow></a-box>
+        
+        <a-box position="7 3 -6" width="10" height="6" depth="12" color="white" shadow></a-box>
+        <a-box position="7 0.6 -6" width="5" height="1.2" depth="7" color="#01579B" shadow></a-box> <a-box position="0 0.8 11.8" width="24" height="1.6" depth="0.1" color="#4DD0E1" opacity="0.4" transparent="true"></a-box>
+        
+        <a-box position="0 6.1 0" width="26" height="0.2" depth="26" color="#01579B"></a-box>
+      </a-entity>
+    </a-entity>
+
+    <a-entity position="-25 0 10">
+      <a-box position="0 3 0" width="12" height="6" depth="12" color="#E0F7FA" opacity="0.2" transparent="true"></a-box> <a-entity id="supercar" position="0 0.8 0">
+        <a-box width="4" height="1.5" depth="8" color="#1976D2" shadow></a-box>
+        <a-box position="0 1.2 0.5" width="3.5" height="1" depth="4" color="#E3F2FD" opacity="0.7"></a-box>
+      </a-entity>
+    </a-entity>
+
+    <a-entity position="-30 0 -20">
+      <a-cylinder radius="0.2" height="4" color="#5D4037"></a-cylinder>
+      <a-sphere position="0 4 0" radius="2" color="#76FF03" animation="property: scale; to: 1.1 1 1.1; dir: alternate; dur: 2000; loop: true"></a-sphere>
+    </a-entity>
+    <a-entity position="35 0 30">
+      <a-cylinder radius="0.2" height="4" color="#5D4037"></a-cylinder>
+      <a-sphere position="0 4 0" radius="1.8" color="#C6FF00" animation="property: scale; to: 1.1 1.1 1.1; dir: alternate; dur: 2500; loop: true"></a-sphere>
+    </a-entity>
+
+    <a-sphere position="0 10 0" radius="0.3" color="red"
+              animation="property: position; to: 20 12 20; dur: 6000; dir: alternate; loop: true; easing: easeInOutSine">
+        <a-light type="point" intensity="0.5" color="red"></a-light>
+    </a-sphere>
+
+  </a-scene>
+</body>
+</html>
